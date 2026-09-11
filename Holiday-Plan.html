@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#36414F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="appicon-180.png">
+<meta name="apple-mobile-web-app-title" content="Let's Go 放假啦!">
+<title>Let's Go 放假啦!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* 藍混灰（slate blue-grey）：比原本的深藍柔和，放假的鬆散感 */
+    --ink:#36414F;
+    --ink-deep:#2A3340;
+    --paper:#F8F6F1;
+    --amber:#F5B95C;
+    --amber-deep:#D9973A;
+    --teal:#5FB3B3;
+    --line:rgba(248,246,241,0.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Noto Sans TC','PingFang TC',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding-bottom:40px;
+  }
+  .wrap{max-width:480px;margin:0 auto;padding:0 20px;}
+
+  @keyframes breathe { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
+  .icon-anim{ animation:breathe 4.5s ease-in-out infinite; transform-origin:center; }
+  @media (prefers-reduced-motion: reduce){ .icon-anim{ animation:none; } }
+
+  /* Hero */
+  .hero{
+    background:linear-gradient(160deg, var(--ink-deep) 0%, var(--ink) 70%);
+    padding:30px 20px 26px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .hero-icon{ width:132px; height:132px; flex-shrink:0; }
+  .hero-label{
+    font-size:12px;
+    color:var(--amber);
+    letter-spacing:0.02em;
+    margin:0 0 6px;
+  }
+  .hero-name{
+    font-family:'Noto Serif TC',serif;
+    font-weight:700;
+    font-size:22px;
+    margin:0 0 3px;
+    line-height:1.35;
+  }
+  .hero-en{
+    font-size:12.5px;
+    opacity:0.55;
+    margin:0 0 14px;
+    font-style:italic;
+  }
+  .hero-count{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-top:16px;
+  }
+  .hero-num{
+    font-family:'Noto Serif TC',serif;
+    font-weight:700;
+    font-size:64px;
+    line-height:1;
+    color:var(--amber);
+  }
+  .hero-unit{
+    font-size:15px;
+    color:var(--paper);
+    opacity:0.75;
+    padding-bottom:8px;
+  }
+  .hero-date{
+    margin-top:10px;
+    font-size:13px;
+    opacity:0.6;
+  }
+  .hero-lunar{
+    font-size:13px;
+    opacity:0.5;
+    margin-top:2px;
+  }
+  .hero-streak-wrap{margin-top:14px;}
+
+  /* Day-A-GoGo 標頭：沿用其他服務的 h1 + sub + 全部服務膠囊連結 */
+  .app-title{
+    font-family:'Noto Serif TC',serif;
+    font-size:25px;
+    font-weight:700;
+    margin:0;
+    letter-spacing:0.5px;
+  }
+  .app-title span{color:var(--amber);}
+  .app-sub{font-size:13px;opacity:0.6;margin-top:4px;}
+  .nav-row{display:flex;gap:8px;margin:14px 0 24px;}
+  .nav-row a{
+    flex:1;
+    text-align:center;
+    font-size:13px;
+    font-weight:600;
+    padding:9px 6px;
+    border-radius:999px;
+    text-decoration:none;
+    background:rgba(245,185,92,0.14);
+    border:1px solid rgba(245,185,92,0.32);
+    color:var(--amber);
+  }
+  .nav-row a:active{opacity:0.65;}
+
+  section{padding:28px 20px 6px;}
+  h2{
+    font-family:'Noto Serif TC',serif;
+    font-size:18px;
+    font-weight:700;
+    margin:0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  h2 .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);}
+
+  /* Holiday list */
+  .hlist{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);}
+  .hlist li{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .hlist .icn{width:60px;height:60px;flex-shrink:0;}
+  .hlist .info{flex:1;min-width:0;}
+  .hlist .name{font-size:15px;font-weight:500;}
+  .hlist .en{font-size:11px;opacity:0.5;font-style:italic;margin-top:1px;}
+  .hlist .date{font-size:12px;opacity:0.55;margin-top:3px;}
+  .hlist .lunar{font-size:11px;opacity:0.4;margin-top:1px;}
+  .hlist .hnote{font-size:11px;opacity:0.45;margin-top:4px;line-height:1.55;}
+  .streak{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    margin-top:6px;
+    font-size:11px;
+    color:var(--amber);
+    background:rgba(245,185,92,0.12);
+    border:1px solid rgba(245,185,92,0.32);
+    border-radius:3px;
+    padding:3px 8px;
+    line-height:1.3;
+  }
+  .streak.est{
+    color:var(--teal);
+    background:rgba(95,179,179,0.14);
+    border-color:rgba(95,179,179,0.35);
+  }
+  .hero-streak-wrap .streak{font-size:12px;padding:4px 10px;margin-top:0;}
+  .hlist .days{
+    font-family:'Noto Serif TC',serif;
+    font-size:20px;
+    color:var(--amber);
+    font-weight:700;
+    white-space:nowrap;
+    text-align:right;
+  }
+  .hlist .days span{font-size:12px;font-weight:400;color:var(--paper);opacity:0.6;margin-left:2px;}
+
+  /* Weather */
+  .wx-row{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .wx-card{
+    flex:0 0 auto;
+    width:78px;
+    background:var(--ink-deep);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:12px 8px;
+    text-align:center;
+  }
+  .wx-card .wd{font-size:12px;opacity:0.65;margin-bottom:6px;}
+  .wx-card .wi{font-size:26px;margin-bottom:6px;}
+  .wx-card .wt{font-size:13px;font-weight:700;}
+  .wx-card .wt .lo{opacity:0.5;font-weight:400;}
+  .wx-card .wp{font-size:11px;color:var(--teal);margin-top:4px;}
+  .wx-status{font-size:12px;opacity:0.5;padding:6px 0 0;}
+
+  /* Trip cards */
+  .trip-card{
+    background:var(--ink-deep);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:16px 18px;
+    margin-bottom:12px;
+  }
+  .trip-card .tag{
+    font-size:11px;
+    color:var(--teal);
+    background:rgba(95,179,179,0.18);
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:3px;
+    margin-bottom:8px;
+  }
+  .trip-card .tname{font-size:16px;font-weight:700;margin:0 0 6px;}
+  .trip-card .tdesc{font-size:13px;line-height:1.6;opacity:0.8;margin:0;}
+
+  /* Restaurant list */
+  .food-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    gap:10px;
+  }
+  .food-row:first-child{border-top:1px solid var(--line);}
+  .food-name{font-size:15px;font-weight:500;color:var(--paper);text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+  .food-name:active{opacity:0.6;}
+  .food-name .pin{font-size:11px;color:var(--amber);}
+  .food-desc{font-size:12px;opacity:0.6;margin-top:3px;line-height:1.5;}
+  .food-area{
+    font-size:11px;
+    color:var(--amber);
+    white-space:nowrap;
+    padding-top:2px;
+  }
+
+  .note{
+    margin-top:26px;
+    padding:14px 16px;
+    background:rgba(245,185,92,0.1);
+    border-left:2px solid var(--amber);
+    font-size:12px;
+    line-height:1.7;
+    opacity:0.85;
+  }
+  .footer{
+    text-align:center;
+    font-size:11px;
+    opacity:0.4;
+    padding:30px 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap" style="padding:0;">
+    <h1 class="app-title">Let's Go <span>放假啦!</span></h1>
+    <div class="app-sub">台灣國定假日倒數・連休一次看清楚 🏖️</div>
+    <div class="nav-row">
+      <a href="hub.html">🎒 全部服務 · Day-A-GoGo</a>
+    </div>
+    <div class="hero-top">
+      <div>
+        <p class="hero-label">下一個假期 · Next Holiday</p>
+        <p class="hero-name" id="nextName">計算中…</p>
+        <p class="hero-en" id="nextNameEn"></p>
+      </div>
+      <div class="hero-icon icon-anim" id="heroIcon"></div>
+    </div>
+    <div class="hero-count">
+      <span class="hero-num" id="nextDays">–</span>
+      <span class="hero-unit">天後 days</span>
+    </div>
+    <p class="hero-date" id="nextDate"></p>
+    <p class="hero-lunar" id="nextLunar"></p>
+    <div class="hero-streak-wrap" id="heroStreak"></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <ul class="hlist" id="holidayList"></ul>
+    <div class="wx-status" id="holidayEmpty" style="display:none;">未來 6 個月內清單無假期資料。</div>
+  </section>
+
+  <section>
+    <h2><span class="dot"></span>台北天氣</h2>
+    <div class="wx-row" id="wxRow">
+      <div class="wx-status">載入天氣中…</div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="dot"></span>小旅行提案</h2>
+
+    <div class="trip-card">
+      <span class="tag">中秋 + 教師節・4天連假</span>
+      <p class="tname">宜蘭太平山二日遊</p>
+      <p class="tdesc">見晴懷古步道、鳩之澤溫泉、翠峰湖，森林芬多精洗肺，開車或客運皆方便，適合連假避開遠程車潮。</p>
+    </div>
+
+    <div class="trip-card">
+      <span class="tag">國慶連假・3天</span>
+      <p class="tname">九份・金瓜石一日輕旅</p>
+      <p class="tdesc">從台北出發車程約1小時，老街、黃金博物館、無耳茶壺山步道，不塞遠程交通也能有出遊感。</p>
+    </div>
+
+    <div class="trip-card">
+      <span class="tag">光復節連假・3天</span>
+      <p class="tname">花蓮縱谷二日遊</p>
+      <p class="tdesc">搭台鐵直達最省力，池上稻浪、鯉魚潭、七星潭，適合安排一晚溫泉飯店放鬆。</p>
+    </div>
+
+    <div class="trip-card">
+      <span class="tag">週末快閃・不用請假</span>
+      <p class="tname">北海岸半日遊</p>
+      <p class="tdesc">野柳地質公園、水湳洞陰陽海、深澳鐵道自行車，台北開車約40分鐘，適合週六下午臨時起意。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="dot"></span>台北餐廳推薦</h2>
+    <div class="food-row">
+      <div>
+        <a class="food-name" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E9%98%9C%E6%9D%AD%E8%B1%86%E6%BC%BF%20%E5%8F%B0%E5%8C%97">阜杭豆漿 <span class="pin">📍</span></a>
+        <div class="food-desc">傳統早餐，鹹豆漿、蛋餅必點，建議平日早上避開排隊高峰。</div>
+      </div>
+      <div class="food-area">善導寺</div>
+    </div>
+    <div class="food-row">
+      <div>
+        <a class="food-name" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E9%BC%8E%E6%B3%B0%E8%B1%90%20%E6%B0%B8%E5%BA%B7%E8%A1%97">鼎泰豐 <span class="pin">📍</span></a>
+        <div class="food-desc">小籠包國際招牌，信義本店觀光感重，永康街分店較道地也較好排。</div>
+      </div>
+      <div class="food-area">信義 / 永康</div>
+    </div>
+    <div class="food-row">
+      <div>
+        <a class="food-name" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E5%AF%A7%E5%A4%8F%E5%A4%9C%E5%B8%82">寧夏夜市 <span class="pin">📍</span></a>
+        <div class="food-desc">台北市中心夜市，蚵仔煎、豬肝湯、圓仔湯，晚上散步覓食很方便。</div>
+      </div>
+      <div class="food-area">雙連</div>
+    </div>
+    <div class="food-row">
+      <div>
+        <a class="food-name" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=%E4%B8%8A%E5%BC%95%E6%B0%B4%E7%94%A2%20%E5%8F%B0%E5%8C%97">上引水產 <span class="pin">📍</span></a>
+        <div class="food-desc">立食迴轉壽司、生魚片，適合週末中午吃海鮮又不用正式訂位。</div>
+      </div>
+      <div class="food-area">民族東路</div>
+    </div>
+  </section>
+
+  <div class="note">
+    <strong>連休標示</strong>：橘色「🔗 N 天連休」是把國定假日與前後相連的週六日一起算出來的整段休假，3 天以上才會標示。<br>
+    <strong>青色標示</strong>代表該日補假尚未由人事行政總處公告，日期依現行補假規則推估，請以官方 116 年辦公日曆表為準 —— 2027 春節初一、初二適逢週末，若依例補假，年假可能由 5 天延長至 7 天。<br>
+    <strong>加入主畫面</strong>：在 Safari 開啟此頁面 → 分享按鈕 → 「加入主畫面」，即可像 App 一樣查看假期倒數、天氣與農曆日期。天氣每次開啟會重新抓取即時預報。
+  </div>
+
+  <div class="footer">
+    假期資料來源：行政院人事行政總處 115 年（2026）辦公日曆表，116 年（2027）依《紀念日及節日實施條例》推估・天氣資料來源：Open-Meteo<br>
+    Day-A-GoGo · Let's Go 放假啦!
+  </div>
+</div>
+
+<script>
+  // note = 假日下方的註解小字；est = 官方行事曆尚未公告，日期為依補假規則推估
+  const holidays = [
+    { name: "中秋節", en: "Mid-Autumn Festival", date: "2026-09-25", icon: "moon",
+      note: "農曆八月十五，賞月、烤肉、吃月餅。" },
+    { name: "教師節（孔子誕辰紀念日）", en: "Teacher's Day (Confucius' Birthday)", date: "2026-09-28", icon: "book_pen",
+      note: "2025 年修法後恢復放假，緊接中秋形成長假。" },
+    { name: "國慶日補假", en: "National Day (Observed)", date: "2026-10-09", icon: "flag",
+      note: "國慶日適逢週六，依規定於前一個上班日補假。" },
+    { name: "國慶日", en: "National Day", date: "2026-10-10", icon: "flag",
+      note: "中華民國國慶，總統府前有升旗典禮與遊行。" },
+    { name: "台灣光復節", en: "Taiwan Retrocession Day", date: "2026-10-25", icon: "torch",
+      note: "2025 年修法後恢復為全國放假日。" },
+    { name: "台灣光復節補假", en: "Taiwan Retrocession Day (Observed)", date: "2026-10-26", icon: "torch",
+      note: "光復節適逢週日，依規定於次一個上班日補假。" },
+    { name: "行憲紀念日", en: "Constitution Day", date: "2026-12-25", icon: "scroll",
+      note: "中華民國憲法施行紀念日，2025 年修法後恢復放假。" },
+    { name: "元旦（開國紀念日）", en: "New Year's Day", date: "2027-01-01", icon: "firework",
+      note: "中華民國開國紀念日，跨年後第一個連假。" },
+    { name: "小年夜", en: "Lunar New Year's Eve Eve", date: "2027-02-04", icon: "lantern",
+      note: "除夕前一日，2025 年修法後新增為放假日。" },
+    { name: "除夕", en: "Lunar New Year's Eve", date: "2027-02-05", icon: "lantern",
+      note: "農曆年最後一天，團圓圍爐、返鄉車潮高峰。" },
+    { name: "春節・初一", en: "Lunar New Year (Day 1)", date: "2027-02-06", icon: "redpacket",
+      note: "適逢週六，補假日期待人事行政總處公告。", est: true },
+    { name: "春節・初二", en: "Lunar New Year (Day 2)", date: "2027-02-07", icon: "redpacket",
+      note: "適逢週日，補假日期待人事行政總處公告。", est: true },
+    { name: "春節・初三", en: "Lunar New Year (Day 3)", date: "2027-02-08", icon: "redpacket",
+      note: "年假最後一天，回程車潮通常最壅塞。" },
+    { name: "和平紀念日", en: "Peace Memorial Day", date: "2027-02-28", icon: "dove",
+      note: "二二八事件紀念日。" },
+    { name: "和平紀念日補假", en: "Peace Memorial Day (Observed)", date: "2027-03-01", icon: "dove",
+      note: "紀念日適逢週日，依補假規則推估於次一日補假。", est: true }
+  ];
+
+  // ---- Refined emblem-style icons: quiet line art on a badge, one accent color per mark ----
+  // 圖示專用配色，比頁面主色再亮一階，讓小尺寸圖示在藍灰底上跳得出來
+  const C = {
+    badge:  "#252E3A",  // 徽章底色（與頁面藍灰同色系，略深）
+    paper:  "#FBFAF6",
+    gold:   "#F7BE63",
+    sand:   "#DCCFA6",
+    teal:   "#63BEBE",
+    moon:   "#FBE08C",
+    red:    "#EE6259",
+    redDeep:"#DC5344",
+    blue:   "#5079C4",
+    flame:  "#FF8552",
+    ember:  "#FFE199",
+    dark:   "#1D2530"
+  };
+
+  const BADGE = `
+    <circle cx="50" cy="50" r="47" fill="${C.badge}"/>
+    <circle cx="50" cy="50" r="47" fill="none" stroke="${C.gold}" stroke-width="1" opacity="0.65"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="${C.gold}" stroke-width="0.5" opacity="0.32"/>
+  `;
+
+  const MARKS = {
+    moon: `
+      <circle cx="45" cy="42" r="16" fill="${C.moon}"/>
+      <circle cx="53" cy="37" r="16" fill="${C.badge}"/>
+      <path d="M27 68 Q39 60 50 67 Q61 74 73 64" stroke="${C.teal}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <ellipse cx="35" cy="65" rx="3.2" ry="1.8" fill="${C.teal}" transform="rotate(-25 35 65)"/>
+      <ellipse cx="65" cy="67" rx="3.2" ry="1.8" fill="${C.teal}" transform="rotate(20 65 67)"/>
+    `,
+    book_pen: `
+      <path d="M27 60 L50 54 L73 60 L73 38 L50 44 L27 38 Z" fill="none" stroke="${C.paper}" stroke-width="1.5" stroke-linejoin="round"/>
+      <line x1="50" y1="44" x2="50" y2="54" stroke="${C.paper}" stroke-width="1.2"/>
+      <path d="M69 27 L38 63" stroke="${C.gold}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M69 27 L74 24 L71 31 Z" fill="${C.gold}"/>
+      <circle cx="37" cy="65" r="1.6" fill="${C.gold}"/>
+    `,
+    flag: `
+      <line x1="37" y1="28" x2="37" y2="74" stroke="${C.sand}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M37 28 L75 37 L37 46 Z" fill="${C.red}"/>
+      <path d="M37 28 L52 28 L37 35 Z" fill="${C.blue}"/>
+      <circle cx="43" cy="31" r="2" fill="${C.paper}"/>
+      <g stroke="${C.gold}" stroke-width="1.2" stroke-linecap="round" opacity="0.9">
+        <line x1="66" y1="24" x2="70" y2="18"/>
+        <line x1="72" y1="27" x2="78" y2="24"/>
+        <line x1="70" y1="32" x2="76" y2="32"/>
+      </g>
+    `,
+    torch: `
+      <path d="M50 24 Q60 38 50 52 Q40 38 50 24 Z" fill="${C.flame}"/>
+      <path d="M50 31 Q55 39 50 47 Q45 39 50 31 Z" fill="${C.ember}"/>
+      <rect x="44" y="52" width="12" height="19" rx="2" fill="none" stroke="${C.gold}" stroke-width="1.5"/>
+      <path d="M30 66 Q40 60 44 66" stroke="${C.teal}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <path d="M70 66 Q60 60 56 66" stroke="${C.teal}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <ellipse cx="34" cy="64" rx="3" ry="1.6" fill="${C.teal}" transform="rotate(-20 34 64)"/>
+      <ellipse cx="66" cy="64" rx="3" ry="1.6" fill="${C.teal}" transform="rotate(20 66 64)"/>
+    `,
+    scroll: `
+      <rect x="25" y="45" width="50" height="14" rx="3" fill="none" stroke="${C.paper}" stroke-width="1.4"/>
+      <circle cx="25" cy="52" r="6.5" fill="none" stroke="${C.sand}" stroke-width="1.4"/>
+      <circle cx="75" cy="52" r="6.5" fill="none" stroke="${C.sand}" stroke-width="1.4"/>
+      <circle cx="50" cy="52" r="7" fill="${C.red}"/>
+      <path d="M50 47.5 L52 51 L55.5 51.3 L52.9 53.7 L53.7 57.1 L50 55.2 L46.3 57.1 L47.1 53.7 L44.5 51.3 L48 51 Z" fill="${C.paper}"/>
+    `,
+    firework: `
+      <g stroke="${C.gold}" stroke-width="1.4" stroke-linecap="round">
+        <line x1="60" y1="34" x2="60" y2="22"/>
+        <line x1="60" y1="34" x2="70" y2="26"/>
+        <line x1="60" y1="34" x2="74" y2="34"/>
+        <line x1="60" y1="34" x2="70" y2="43"/>
+        <line x1="60" y1="34" x2="52" y2="24"/>
+      </g>
+      <circle cx="60" cy="22" r="1.6" fill="${C.gold}"/>
+      <circle cx="72" cy="24" r="1.4" fill="${C.gold}"/>
+      <circle cx="74" cy="34" r="1.4" fill="${C.gold}"/>
+      <path d="M36 72 L36 52 L44 52 L44 72 L48 78 L32 78 Z" fill="none" stroke="${C.paper}" stroke-width="1.4" stroke-linejoin="round"/>
+      <line x1="36" y1="58" x2="44" y2="58" stroke="${C.paper}" stroke-width="1"/>
+      <circle cx="38" cy="63" r="1" fill="${C.paper}" opacity="0.6"/>
+      <circle cx="41" cy="68" r="0.9" fill="${C.paper}" opacity="0.6"/>
+    `,
+    lantern: `
+      <line x1="50" y1="20" x2="50" y2="27" stroke="${C.sand}" stroke-width="1.4" stroke-linecap="round"/>
+      <rect x="40" y="26" width="20" height="4" rx="1.5" fill="${C.sand}"/>
+      <ellipse cx="50" cy="47" rx="19" ry="17" fill="${C.redDeep}"/>
+      <g stroke="${C.gold}" stroke-width="0.9" fill="none" opacity="0.8">
+        <line x1="50" y1="30" x2="50" y2="64"/>
+        <path d="M40 33 Q37 47 40 61"/>
+        <path d="M60 33 Q63 47 60 61"/>
+      </g>
+      <rect x="40" y="63" width="20" height="4" rx="1.5" fill="${C.sand}"/>
+      <g stroke="${C.gold}" stroke-width="1.2" stroke-linecap="round">
+        <line x1="45" y1="67" x2="45" y2="76"/>
+        <line x1="50" y1="67" x2="50" y2="79"/>
+        <line x1="55" y1="67" x2="55" y2="76"/>
+      </g>
+    `,
+    redpacket: `
+      <rect x="33" y="27" width="34" height="47" rx="3" fill="${C.redDeep}"/>
+      <rect x="33" y="27" width="34" height="47" rx="3" fill="none" stroke="${C.gold}" stroke-width="1" opacity="0.6"/>
+      <path d="M33 39 Q50 51 67 39" fill="none" stroke="${C.gold}" stroke-width="1.4"/>
+      <circle cx="50" cy="44" r="7" fill="${C.gold}"/>
+      <text x="50" y="48.2" text-anchor="middle" font-family="'Noto Serif TC',serif" font-size="10" font-weight="700" fill="${C.redDeep}">春</text>
+    `,
+    dove: `
+      <path d="M28 61 Q31 45 47 42 Q59 40 67 46 L75 42 L71 50 Q69 64 55 68 Q38 72 28 61 Z" fill="${C.paper}" opacity="0.95"/>
+      <path d="M45 44 Q57 51 44 63 Z" fill="${C.teal}" opacity="0.85"/>
+      <circle cx="65" cy="47" r="1.3" fill="${C.dark}"/>
+      <path d="M71 50 L79 52" stroke="${C.gold}" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M33 73 Q45 79 58 74" fill="none" stroke="${C.teal}" stroke-width="1.2" stroke-linecap="round"/>
+      <ellipse cx="41" cy="76" rx="3" ry="1.6" fill="${C.teal}" transform="rotate(-15 41 76)"/>
+      <ellipse cx="52" cy="77" rx="3" ry="1.6" fill="${C.teal}" transform="rotate(12 52 77)"/>
+    `
+  };
+
+  function iconSvg(key){
+    const mark = MARKS[key] || MARKS.firework;
+    return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">${BADGE}${mark}</svg>`;
+  }
+
+  const weekdayNames = ["週日","週一","週二","週三","週四","週五","週六"];
+  const weekdayShort = ["日","一","二","三","四","五","六"];
+
+  function startOfDay(d){
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function addDays(d, n){
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  }
+
+  function isoKey(d){
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  // ---- 連休偵測：國定假日 + 週六日連成一段，長度 >= 3 天才標示 ----
+  const holidaySet = new Set(holidays.map(h => h.date));
+
+  function isDayOff(d){
+    const wd = d.getDay();
+    return wd === 0 || wd === 6 || holidaySet.has(isoKey(d));
+  }
+
+  // 從某個假日往前後擴張，找出整段連續休假的起訖
+  function streakFor(dateObj){
+    let start = dateObj, end = dateObj;
+    for (let i = 0; i < 30; i++){
+      const prev = addDays(start, -1);
+      if (!isDayOff(prev)) break;
+      start = prev;
+    }
+    for (let i = 0; i < 30; i++){
+      const next = addDays(end, 1);
+      if (!isDayOff(next)) break;
+      end = next;
+    }
+    const len = Math.round((end - start) / 86400000) + 1;
+    return { start, end, len };
+  }
+
+  function mdw(d){
+    return (d.getMonth() + 1) + "/" + d.getDate() + "（" + weekdayShort[d.getDay()] + "）";
+  }
+
+  function streakHtml(h){
+    const s = streakFor(h.dateObj);
+    if (s.len < 3) return "";
+    const cls = h.est ? "streak est" : "streak";
+    return `<div class="${cls}">🔗 ${s.len} 天連休 · ${mdw(s.start)} – ${mdw(s.end)}</div>`;
+  }
+
+  // ---- Lunar date via Intl Chinese calendar (built into iOS Safari / WebKit) ----
+  const dayChinese = ["初一","初二","初三","初四","初五","初六","初七","初八","初九","初十",
+    "十一","十二","十三","十四","十五","十六","十七","十八","十九","二十",
+    "廿一","廿二","廿三","廿四","廿五","廿六","廿七","廿八","廿九","三十"];
+
+  let lunarFmt = null;
+  try {
+    lunarFmt = new Intl.DateTimeFormat('zh-Hant', { calendar: 'chinese', month: 'long', day: 'numeric' });
+  } catch(e) { lunarFmt = null; }
+
+  function toLunarLabel(dateObj){
+    if (!lunarFmt) return "";
+    try {
+      const parts = lunarFmt.formatToParts(dateObj);
+      const month = parts.find(p => p.type === 'month');
+      const day = parts.find(p => p.type === 'day');
+      if (!month || !day) return "";
+      const dayNum = parseInt(day.value, 10);
+      const dayLabel = (dayNum >= 1 && dayNum <= 30) ? dayChinese[dayNum - 1] : (day.value + "日");
+      return "農曆 " + month.value + dayLabel;
+    } catch(e) { return ""; }
+  }
+
+  const today = startOfDay(new Date());
+  // 顯示範圍：今日起算 6 個月
+  const horizon = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
+
+  const upcoming = holidays
+    .map(h => {
+      const d = startOfDay(new Date(h.date + "T00:00:00"));
+      const diffDays = Math.round((d - today) / 86400000);
+      return { ...h, dateObj: d, diffDays };
+    })
+    .filter(h => h.diffDays >= 0 && h.dateObj <= horizon)
+    .sort((a,b) => a.diffDays - b.diffDays);
+
+  if (upcoming.length > 0) {
+    const next = upcoming[0];
+    document.getElementById("nextName").textContent = next.name;
+    document.getElementById("nextNameEn").textContent = next.en;
+    document.getElementById("nextDays").textContent = next.diffDays === 0 ? "今天" : next.diffDays;
+    document.getElementById("nextDate").textContent =
+      next.dateObj.getFullYear() + "/" + (next.dateObj.getMonth()+1) + "/" + next.dateObj.getDate() +
+      "（" + weekdayNames[next.dateObj.getDay()] + "）";
+    document.getElementById("nextLunar").textContent = toLunarLabel(next.dateObj);
+    document.getElementById("heroIcon").innerHTML = iconSvg(next.icon);
+    document.getElementById("heroStreak").innerHTML = streakHtml(next);
+    if (next.diffDays === 0) {
+      document.querySelector(".hero-unit").textContent = "就是今天 Today";
+    }
+  } else {
+    document.getElementById("nextName").textContent = "目前清單無更多假期";
+  }
+
+  const list = document.getElementById("holidayList");
+  upcoming.forEach(h => {
+    const li = document.createElement("li");
+    const dateStr = h.dateObj.getFullYear() + "/" + (h.dateObj.getMonth()+1) + "/" + h.dateObj.getDate() +
+      "（" + weekdayNames[h.dateObj.getDay()] + "）";
+    const lunarStr = toLunarLabel(h.dateObj);
+    li.innerHTML = `
+      <div class="icn">${iconSvg(h.icon)}</div>
+      <div class="info">
+        <div class="name">${h.name}</div>
+        <div class="en">${h.en}</div>
+        <div class="date">${dateStr}</div>
+        <div class="lunar">${lunarStr}</div>
+        ${h.note ? `<div class="hnote">${h.note}</div>` : ""}
+        ${streakHtml(h)}
+      </div>
+      <div class="days">${h.diffDays === 0 ? "今天" : h.diffDays}${h.diffDays === 0 ? "" : "<span>天</span>"}</div>
+    `;
+    list.appendChild(li);
+  });
+
+  if (upcoming.length === 0) {
+    document.getElementById("holidayEmpty").style.display = "block";
+  }
+
+  // ---- Weather via Open-Meteo (no key needed, CORS-friendly) ----
+  const wxRow = document.getElementById("wxRow");
+
+  function wxIcon(code){
+    if (code === 0) return "☀️";
+    if ([1,2,3].includes(code)) return "🌤️";
+    if ([45,48].includes(code)) return "🌫️";
+    if ([51,53,55,56,57].includes(code)) return "🌦️";
+    if ([61,63,65,66,67,80,81,82].includes(code)) return "🌧️";
+    if ([71,73,75,77,85,86].includes(code)) return "🌨️";
+    if ([95,96,99].includes(code)) return "⛈️";
+    return "🌡️";
+  }
+
+  fetch("https://api.open-meteo.com/v1/forecast?latitude=25.033&longitude=121.5654&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=Asia%2FTaipei&forecast_days=5")
+    .then(res => {
+      if (!res.ok) throw new Error("weather fetch failed");
+      return res.json();
+    })
+    .then(data => {
+      const d = data.daily;
+      wxRow.innerHTML = "";
+      for (let i = 0; i < d.time.length; i++) {
+        const date = new Date(d.time[i] + "T00:00:00");
+        const label = i === 0 ? "今天" : weekdayShort[date.getDay()];
+        const card = document.createElement("div");
+        card.className = "wx-card";
+        card.innerHTML = `
+          <div class="wd">${label}</div>
+          <div class="wi">${wxIcon(d.weathercode[i])}</div>
+          <div class="wt">${Math.round(d.temperature_2m_max[i])}° <span class="lo">${Math.round(d.temperature_2m_min[i])}°</span></div>
+          <div class="wp">💧${d.precipitation_probability_max[i]}%</div>
+        `;
+        wxRow.appendChild(card);
+      }
+    })
+    .catch(err => {
+      wxRow.innerHTML = '<div class="wx-status">天氣資料載入失敗，請檢查網路連線後重新開啟頁面。</div>';
+    });
+</script>
+
+</body>
+</html>
