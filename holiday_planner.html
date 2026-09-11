@@ -8,13 +8,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1B2A4A;
-    --ink-deep:#12203A;
-    --paper:#F7F3EA;
-    --amber:#E8A33D;
-    --amber-deep:#C97F1E;
-    --teal:#3A7C7C;
-    --line:rgba(247,243,234,0.14);
+    /* 藍混灰（slate blue-grey）：比原本的深藍柔和，放假的鬆散感 */
+    --ink:#36414F;
+    --ink-deep:#2A3340;
+    --paper:#F8F6F1;
+    --amber:#F5B95C;
+    --amber-deep:#D9973A;
+    --teal:#5FB3B3;
+    --line:rgba(248,246,241,0.16);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -93,6 +94,7 @@
     opacity:0.5;
     margin-top:2px;
   }
+  .hero-streak-wrap{margin-top:14px;}
 
   section{padding:28px 20px 6px;}
   h2{
@@ -115,12 +117,32 @@
     padding:12px 0;
     border-bottom:1px solid var(--line);
   }
-  .hlist .icn{width:52px;height:52px;flex-shrink:0;}
+  .hlist .icn{width:60px;height:60px;flex-shrink:0;}
   .hlist .info{flex:1;min-width:0;}
   .hlist .name{font-size:15px;font-weight:500;}
   .hlist .en{font-size:11px;opacity:0.5;font-style:italic;margin-top:1px;}
   .hlist .date{font-size:12px;opacity:0.55;margin-top:3px;}
   .hlist .lunar{font-size:11px;opacity:0.4;margin-top:1px;}
+  .hlist .hnote{font-size:11px;opacity:0.45;margin-top:4px;line-height:1.55;}
+  .streak{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    margin-top:6px;
+    font-size:11px;
+    color:var(--amber);
+    background:rgba(245,185,92,0.12);
+    border:1px solid rgba(245,185,92,0.32);
+    border-radius:3px;
+    padding:3px 8px;
+    line-height:1.3;
+  }
+  .streak.est{
+    color:var(--teal);
+    background:rgba(95,179,179,0.14);
+    border-color:rgba(95,179,179,0.35);
+  }
+  .hero-streak-wrap .streak{font-size:12px;padding:4px 10px;margin-top:0;}
   .hlist .days{
     font-family:'Noto Serif TC',serif;
     font-size:20px;
@@ -165,7 +187,7 @@
   .trip-card .tag{
     font-size:11px;
     color:var(--teal);
-    background:rgba(58,124,124,0.18);
+    background:rgba(95,179,179,0.18);
     display:inline-block;
     padding:2px 8px;
     border-radius:3px;
@@ -198,7 +220,7 @@
   .note{
     margin-top:26px;
     padding:14px 16px;
-    background:rgba(232,163,61,0.1);
+    background:rgba(245,185,92,0.1);
     border-left:2px solid var(--amber);
     font-size:12px;
     line-height:1.7;
@@ -230,14 +252,15 @@
     </div>
     <p class="hero-date" id="nextDate"></p>
     <p class="hero-lunar" id="nextLunar"></p>
+    <div class="hero-streak-wrap" id="heroStreak"></div>
   </div>
 </div>
 
 <div class="wrap">
 
   <section>
-    <h2><span class="dot"></span>近期國定假日</h2>
     <ul class="hlist" id="holidayList"></ul>
+    <div class="wx-status" id="holidayEmpty" style="display:none;">未來 6 個月內清單無假期資料。</div>
   </section>
 
   <section>
@@ -308,88 +331,161 @@
   </section>
 
   <div class="note">
-    加入主畫面：在 Safari 開啟此頁面 → 點選分享按鈕 → 「加入主畫面」，之後就能像 App 一樣點開查看假期倒數、天氣與農曆日期。天氣資料每次開啟頁面會重新抓取即時預報。
+    <strong>連休標示</strong>：橘色「🔗 N 天連休」是把國定假日與前後相連的週六日一起算出來的整段休假，3 天以上才會標示。<br>
+    <strong>青色標示</strong>代表該日補假尚未由人事行政總處公告，日期依現行補假規則推估，請以官方 116 年辦公日曆表為準 —— 2027 春節初一、初二適逢週末，若依例補假，年假可能由 5 天延長至 7 天。<br>
+    <strong>加入主畫面</strong>：在 Safari 開啟此頁面 → 分享按鈕 → 「加入主畫面」，即可像 App 一樣查看假期倒數、天氣與農曆日期。天氣每次開啟會重新抓取即時預報。
   </div>
 
-  <div class="footer">假期資料來源：行政院人事行政總處 115 年（2026）辦公日曆表・天氣資料來源：Open-Meteo</div>
+  <div class="footer">假期資料來源：行政院人事行政總處 115 年（2026）辦公日曆表，116 年（2027）依《紀念日及節日實施條例》推估・天氣資料來源：Open-Meteo</div>
 </div>
 
 <script>
+  // note = 假日下方的註解小字；est = 官方行事曆尚未公告，日期為依補假規則推估
   const holidays = [
-    { name: "中秋節", en: "Mid-Autumn Festival", date: "2026-09-25", icon: "moon" },
-    { name: "教師節（孔子誕辰紀念日）", en: "Teacher's Day (Confucius' Birthday)", date: "2026-09-28", icon: "book_pen" },
-    { name: "國慶日補假", en: "National Day (Observed)", date: "2026-10-09", icon: "flag" },
-    { name: "國慶日", en: "National Day", date: "2026-10-10", icon: "flag" },
-    { name: "台灣光復節", en: "Taiwan Retrocession Day", date: "2026-10-25", icon: "torch" },
-    { name: "台灣光復節補假", en: "Taiwan Retrocession Day (Observed)", date: "2026-10-26", icon: "torch" },
-    { name: "行憲紀念日", en: "Constitution Day", date: "2026-12-25", icon: "scroll" },
-    { name: "元旦", en: "New Year's Day", date: "2027-01-01", icon: "firework" }
+    { name: "中秋節", en: "Mid-Autumn Festival", date: "2026-09-25", icon: "moon",
+      note: "農曆八月十五，賞月、烤肉、吃月餅。" },
+    { name: "教師節（孔子誕辰紀念日）", en: "Teacher's Day (Confucius' Birthday)", date: "2026-09-28", icon: "book_pen",
+      note: "2025 年修法後恢復放假，緊接中秋形成長假。" },
+    { name: "國慶日補假", en: "National Day (Observed)", date: "2026-10-09", icon: "flag",
+      note: "國慶日適逢週六，依規定於前一個上班日補假。" },
+    { name: "國慶日", en: "National Day", date: "2026-10-10", icon: "flag",
+      note: "中華民國國慶，總統府前有升旗典禮與遊行。" },
+    { name: "台灣光復節", en: "Taiwan Retrocession Day", date: "2026-10-25", icon: "torch",
+      note: "2025 年修法後恢復為全國放假日。" },
+    { name: "台灣光復節補假", en: "Taiwan Retrocession Day (Observed)", date: "2026-10-26", icon: "torch",
+      note: "光復節適逢週日，依規定於次一個上班日補假。" },
+    { name: "行憲紀念日", en: "Constitution Day", date: "2026-12-25", icon: "scroll",
+      note: "中華民國憲法施行紀念日，2025 年修法後恢復放假。" },
+    { name: "元旦（開國紀念日）", en: "New Year's Day", date: "2027-01-01", icon: "firework",
+      note: "中華民國開國紀念日，跨年後第一個連假。" },
+    { name: "小年夜", en: "Lunar New Year's Eve Eve", date: "2027-02-04", icon: "lantern",
+      note: "除夕前一日，2025 年修法後新增為放假日。" },
+    { name: "除夕", en: "Lunar New Year's Eve", date: "2027-02-05", icon: "lantern",
+      note: "農曆年最後一天，團圓圍爐、返鄉車潮高峰。" },
+    { name: "春節・初一", en: "Lunar New Year (Day 1)", date: "2027-02-06", icon: "redpacket",
+      note: "適逢週六，補假日期待人事行政總處公告。", est: true },
+    { name: "春節・初二", en: "Lunar New Year (Day 2)", date: "2027-02-07", icon: "redpacket",
+      note: "適逢週日，補假日期待人事行政總處公告。", est: true },
+    { name: "春節・初三", en: "Lunar New Year (Day 3)", date: "2027-02-08", icon: "redpacket",
+      note: "年假最後一天，回程車潮通常最壅塞。" },
+    { name: "和平紀念日", en: "Peace Memorial Day", date: "2027-02-28", icon: "dove",
+      note: "二二八事件紀念日。" },
+    { name: "和平紀念日補假", en: "Peace Memorial Day (Observed)", date: "2027-03-01", icon: "dove",
+      note: "紀念日適逢週日，依補假規則推估於次一日補假。", est: true }
   ];
 
   // ---- Refined emblem-style icons: quiet line art on a badge, one accent color per mark ----
+  // 圖示專用配色，比頁面主色再亮一階，讓小尺寸圖示在藍灰底上跳得出來
+  const C = {
+    badge:  "#252E3A",  // 徽章底色（與頁面藍灰同色系，略深）
+    paper:  "#FBFAF6",
+    gold:   "#F7BE63",
+    sand:   "#DCCFA6",
+    teal:   "#63BEBE",
+    moon:   "#FBE08C",
+    red:    "#EE6259",
+    redDeep:"#DC5344",
+    blue:   "#5079C4",
+    flame:  "#FF8552",
+    ember:  "#FFE199",
+    dark:   "#1D2530"
+  };
+
   const BADGE = `
-    <circle cx="50" cy="50" r="47" fill="#0F1B33"/>
-    <circle cx="50" cy="50" r="47" fill="none" stroke="#E8A33D" stroke-width="1" opacity="0.55"/>
-    <circle cx="50" cy="50" r="40" fill="none" stroke="#E8A33D" stroke-width="0.5" opacity="0.28"/>
+    <circle cx="50" cy="50" r="47" fill="${C.badge}"/>
+    <circle cx="50" cy="50" r="47" fill="none" stroke="${C.gold}" stroke-width="1" opacity="0.65"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="${C.gold}" stroke-width="0.5" opacity="0.32"/>
   `;
 
   const MARKS = {
     moon: `
-      <circle cx="45" cy="42" r="16" fill="#F4D06F"/>
-      <circle cx="53" cy="37" r="16" fill="#0F1B33"/>
-      <path d="M27 68 Q39 60 50 67 Q61 74 73 64" stroke="#3A7C7C" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-      <ellipse cx="35" cy="65" rx="3.2" ry="1.8" fill="#3A7C7C" transform="rotate(-25 35 65)"/>
-      <ellipse cx="65" cy="67" rx="3.2" ry="1.8" fill="#3A7C7C" transform="rotate(20 65 67)"/>
+      <circle cx="45" cy="42" r="16" fill="${C.moon}"/>
+      <circle cx="53" cy="37" r="16" fill="${C.badge}"/>
+      <path d="M27 68 Q39 60 50 67 Q61 74 73 64" stroke="${C.teal}" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <ellipse cx="35" cy="65" rx="3.2" ry="1.8" fill="${C.teal}" transform="rotate(-25 35 65)"/>
+      <ellipse cx="65" cy="67" rx="3.2" ry="1.8" fill="${C.teal}" transform="rotate(20 65 67)"/>
     `,
     book_pen: `
-      <path d="M27 60 L50 54 L73 60 L73 38 L50 44 L27 38 Z" fill="none" stroke="#F7F3EA" stroke-width="1.5" stroke-linejoin="round"/>
-      <line x1="50" y1="44" x2="50" y2="54" stroke="#F7F3EA" stroke-width="1.2"/>
-      <path d="M69 27 L38 63" stroke="#E8A33D" stroke-width="2" stroke-linecap="round"/>
-      <path d="M69 27 L74 24 L71 31 Z" fill="#E8A33D"/>
-      <circle cx="37" cy="65" r="1.6" fill="#E8A33D"/>
+      <path d="M27 60 L50 54 L73 60 L73 38 L50 44 L27 38 Z" fill="none" stroke="${C.paper}" stroke-width="1.5" stroke-linejoin="round"/>
+      <line x1="50" y1="44" x2="50" y2="54" stroke="${C.paper}" stroke-width="1.2"/>
+      <path d="M69 27 L38 63" stroke="${C.gold}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M69 27 L74 24 L71 31 Z" fill="${C.gold}"/>
+      <circle cx="37" cy="65" r="1.6" fill="${C.gold}"/>
     `,
     flag: `
-      <line x1="37" y1="28" x2="37" y2="74" stroke="#C9B98A" stroke-width="2" stroke-linecap="round"/>
-      <path d="M37 28 L75 37 L37 46 Z" fill="#D64545"/>
-      <path d="M37 28 L52 28 L37 35 Z" fill="#2E4E8C"/>
-      <circle cx="43" cy="31" r="2" fill="#F7F3EA"/>
-      <g stroke="#E8A33D" stroke-width="1.2" stroke-linecap="round" opacity="0.85">
+      <line x1="37" y1="28" x2="37" y2="74" stroke="${C.sand}" stroke-width="2" stroke-linecap="round"/>
+      <path d="M37 28 L75 37 L37 46 Z" fill="${C.red}"/>
+      <path d="M37 28 L52 28 L37 35 Z" fill="${C.blue}"/>
+      <circle cx="43" cy="31" r="2" fill="${C.paper}"/>
+      <g stroke="${C.gold}" stroke-width="1.2" stroke-linecap="round" opacity="0.9">
         <line x1="66" y1="24" x2="70" y2="18"/>
         <line x1="72" y1="27" x2="78" y2="24"/>
         <line x1="70" y1="32" x2="76" y2="32"/>
       </g>
     `,
     torch: `
-      <path d="M50 24 Q60 38 50 52 Q40 38 50 24 Z" fill="#F2673A"/>
-      <path d="M50 31 Q55 39 50 47 Q45 39 50 31 Z" fill="#FBCB6E"/>
-      <rect x="44" y="52" width="12" height="19" rx="2" fill="none" stroke="#E8A33D" stroke-width="1.5"/>
-      <path d="M30 66 Q40 60 44 66" stroke="#3A7C7C" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-      <path d="M70 66 Q60 60 56 66" stroke="#3A7C7C" stroke-width="1.3" fill="none" stroke-linecap="round"/>
-      <ellipse cx="34" cy="64" rx="3" ry="1.6" fill="#3A7C7C" transform="rotate(-20 34 64)"/>
-      <ellipse cx="66" cy="64" rx="3" ry="1.6" fill="#3A7C7C" transform="rotate(20 66 64)"/>
+      <path d="M50 24 Q60 38 50 52 Q40 38 50 24 Z" fill="${C.flame}"/>
+      <path d="M50 31 Q55 39 50 47 Q45 39 50 31 Z" fill="${C.ember}"/>
+      <rect x="44" y="52" width="12" height="19" rx="2" fill="none" stroke="${C.gold}" stroke-width="1.5"/>
+      <path d="M30 66 Q40 60 44 66" stroke="${C.teal}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <path d="M70 66 Q60 60 56 66" stroke="${C.teal}" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <ellipse cx="34" cy="64" rx="3" ry="1.6" fill="${C.teal}" transform="rotate(-20 34 64)"/>
+      <ellipse cx="66" cy="64" rx="3" ry="1.6" fill="${C.teal}" transform="rotate(20 66 64)"/>
     `,
     scroll: `
-      <rect x="25" y="45" width="50" height="14" rx="3" fill="none" stroke="#F7F3EA" stroke-width="1.4"/>
-      <circle cx="25" cy="52" r="6.5" fill="none" stroke="#C9B98A" stroke-width="1.4"/>
-      <circle cx="75" cy="52" r="6.5" fill="none" stroke="#C9B98A" stroke-width="1.4"/>
-      <circle cx="50" cy="52" r="7" fill="#B23A3A"/>
-      <path d="M50 47.5 L52 51 L55.5 51.3 L52.9 53.7 L53.7 57.1 L50 55.2 L46.3 57.1 L47.1 53.7 L44.5 51.3 L48 51 Z" fill="#F7F3EA"/>
+      <rect x="25" y="45" width="50" height="14" rx="3" fill="none" stroke="${C.paper}" stroke-width="1.4"/>
+      <circle cx="25" cy="52" r="6.5" fill="none" stroke="${C.sand}" stroke-width="1.4"/>
+      <circle cx="75" cy="52" r="6.5" fill="none" stroke="${C.sand}" stroke-width="1.4"/>
+      <circle cx="50" cy="52" r="7" fill="${C.red}"/>
+      <path d="M50 47.5 L52 51 L55.5 51.3 L52.9 53.7 L53.7 57.1 L50 55.2 L46.3 57.1 L47.1 53.7 L44.5 51.3 L48 51 Z" fill="${C.paper}"/>
     `,
     firework: `
-      <g stroke="#E8A33D" stroke-width="1.4" stroke-linecap="round">
+      <g stroke="${C.gold}" stroke-width="1.4" stroke-linecap="round">
         <line x1="60" y1="34" x2="60" y2="22"/>
         <line x1="60" y1="34" x2="70" y2="26"/>
         <line x1="60" y1="34" x2="74" y2="34"/>
         <line x1="60" y1="34" x2="70" y2="43"/>
         <line x1="60" y1="34" x2="52" y2="24"/>
       </g>
-      <circle cx="60" cy="22" r="1.6" fill="#E8A33D"/>
-      <circle cx="72" cy="24" r="1.4" fill="#E8A33D"/>
-      <circle cx="74" cy="34" r="1.4" fill="#E8A33D"/>
-      <path d="M36 72 L36 52 L44 52 L44 72 L48 78 L32 78 Z" fill="none" stroke="#F7F3EA" stroke-width="1.4" stroke-linejoin="round"/>
-      <line x1="36" y1="58" x2="44" y2="58" stroke="#F7F3EA" stroke-width="1"/>
-      <circle cx="38" cy="63" r="1" fill="#F7F3EA" opacity="0.6"/>
-      <circle cx="41" cy="68" r="0.9" fill="#F7F3EA" opacity="0.6"/>
+      <circle cx="60" cy="22" r="1.6" fill="${C.gold}"/>
+      <circle cx="72" cy="24" r="1.4" fill="${C.gold}"/>
+      <circle cx="74" cy="34" r="1.4" fill="${C.gold}"/>
+      <path d="M36 72 L36 52 L44 52 L44 72 L48 78 L32 78 Z" fill="none" stroke="${C.paper}" stroke-width="1.4" stroke-linejoin="round"/>
+      <line x1="36" y1="58" x2="44" y2="58" stroke="${C.paper}" stroke-width="1"/>
+      <circle cx="38" cy="63" r="1" fill="${C.paper}" opacity="0.6"/>
+      <circle cx="41" cy="68" r="0.9" fill="${C.paper}" opacity="0.6"/>
+    `,
+    lantern: `
+      <line x1="50" y1="20" x2="50" y2="27" stroke="${C.sand}" stroke-width="1.4" stroke-linecap="round"/>
+      <rect x="40" y="26" width="20" height="4" rx="1.5" fill="${C.sand}"/>
+      <ellipse cx="50" cy="47" rx="19" ry="17" fill="${C.redDeep}"/>
+      <g stroke="${C.gold}" stroke-width="0.9" fill="none" opacity="0.8">
+        <line x1="50" y1="30" x2="50" y2="64"/>
+        <path d="M40 33 Q37 47 40 61"/>
+        <path d="M60 33 Q63 47 60 61"/>
+      </g>
+      <rect x="40" y="63" width="20" height="4" rx="1.5" fill="${C.sand}"/>
+      <g stroke="${C.gold}" stroke-width="1.2" stroke-linecap="round">
+        <line x1="45" y1="67" x2="45" y2="76"/>
+        <line x1="50" y1="67" x2="50" y2="79"/>
+        <line x1="55" y1="67" x2="55" y2="76"/>
+      </g>
+    `,
+    redpacket: `
+      <rect x="33" y="27" width="34" height="47" rx="3" fill="${C.redDeep}"/>
+      <rect x="33" y="27" width="34" height="47" rx="3" fill="none" stroke="${C.gold}" stroke-width="1" opacity="0.6"/>
+      <path d="M33 39 Q50 51 67 39" fill="none" stroke="${C.gold}" stroke-width="1.4"/>
+      <circle cx="50" cy="44" r="7" fill="${C.gold}"/>
+      <text x="50" y="48.2" text-anchor="middle" font-family="'Noto Serif TC',serif" font-size="10" font-weight="700" fill="${C.redDeep}">春</text>
+    `,
+    dove: `
+      <path d="M28 61 Q31 45 47 42 Q59 40 67 46 L75 42 L71 50 Q69 64 55 68 Q38 72 28 61 Z" fill="${C.paper}" opacity="0.95"/>
+      <path d="M45 44 Q57 51 44 63 Z" fill="${C.teal}" opacity="0.85"/>
+      <circle cx="65" cy="47" r="1.3" fill="${C.dark}"/>
+      <path d="M71 50 L79 52" stroke="${C.gold}" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M33 73 Q45 79 58 74" fill="none" stroke="${C.teal}" stroke-width="1.2" stroke-linecap="round"/>
+      <ellipse cx="41" cy="76" rx="3" ry="1.6" fill="${C.teal}" transform="rotate(-15 41 76)"/>
+      <ellipse cx="52" cy="77" rx="3" ry="1.6" fill="${C.teal}" transform="rotate(12 52 77)"/>
     `
   };
 
@@ -399,9 +495,56 @@
   }
 
   const weekdayNames = ["週日","週一","週二","週三","週四","週五","週六"];
+  const weekdayShort = ["日","一","二","三","四","五","六"];
 
   function startOfDay(d){
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function addDays(d, n){
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  }
+
+  function isoKey(d){
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  // ---- 連休偵測：國定假日 + 週六日連成一段，長度 >= 3 天才標示 ----
+  const holidaySet = new Set(holidays.map(h => h.date));
+
+  function isDayOff(d){
+    const wd = d.getDay();
+    return wd === 0 || wd === 6 || holidaySet.has(isoKey(d));
+  }
+
+  // 從某個假日往前後擴張，找出整段連續休假的起訖
+  function streakFor(dateObj){
+    let start = dateObj, end = dateObj;
+    for (let i = 0; i < 30; i++){
+      const prev = addDays(start, -1);
+      if (!isDayOff(prev)) break;
+      start = prev;
+    }
+    for (let i = 0; i < 30; i++){
+      const next = addDays(end, 1);
+      if (!isDayOff(next)) break;
+      end = next;
+    }
+    const len = Math.round((end - start) / 86400000) + 1;
+    return { start, end, len };
+  }
+
+  function mdw(d){
+    return (d.getMonth() + 1) + "/" + d.getDate() + "（" + weekdayShort[d.getDay()] + "）";
+  }
+
+  function streakHtml(h){
+    const s = streakFor(h.dateObj);
+    if (s.len < 3) return "";
+    const cls = h.est ? "streak est" : "streak";
+    return `<div class="${cls}">🔗 ${s.len} 天連休 · ${mdw(s.start)} – ${mdw(s.end)}</div>`;
   }
 
   // ---- Lunar date via Intl Chinese calendar (built into iOS Safari / WebKit) ----
@@ -428,6 +571,8 @@
   }
 
   const today = startOfDay(new Date());
+  // 顯示範圍：今日起算 6 個月
+  const horizon = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
 
   const upcoming = holidays
     .map(h => {
@@ -435,7 +580,7 @@
       const diffDays = Math.round((d - today) / 86400000);
       return { ...h, dateObj: d, diffDays };
     })
-    .filter(h => h.diffDays >= 0)
+    .filter(h => h.diffDays >= 0 && h.dateObj <= horizon)
     .sort((a,b) => a.diffDays - b.diffDays);
 
   if (upcoming.length > 0) {
@@ -448,6 +593,7 @@
       "（" + weekdayNames[next.dateObj.getDay()] + "）";
     document.getElementById("nextLunar").textContent = toLunarLabel(next.dateObj);
     document.getElementById("heroIcon").innerHTML = iconSvg(next.icon);
+    document.getElementById("heroStreak").innerHTML = streakHtml(next);
     if (next.diffDays === 0) {
       document.querySelector(".hero-unit").textContent = "就是今天 Today";
     }
@@ -456,7 +602,7 @@
   }
 
   const list = document.getElementById("holidayList");
-  upcoming.slice(0, 8).forEach(h => {
+  upcoming.forEach(h => {
     const li = document.createElement("li");
     const dateStr = h.dateObj.getFullYear() + "/" + (h.dateObj.getMonth()+1) + "/" + h.dateObj.getDate() +
       "（" + weekdayNames[h.dateObj.getDay()] + "）";
@@ -468,15 +614,20 @@
         <div class="en">${h.en}</div>
         <div class="date">${dateStr}</div>
         <div class="lunar">${lunarStr}</div>
+        ${h.note ? `<div class="hnote">${h.note}</div>` : ""}
+        ${streakHtml(h)}
       </div>
       <div class="days">${h.diffDays === 0 ? "今天" : h.diffDays}${h.diffDays === 0 ? "" : "<span>天</span>"}</div>
     `;
     list.appendChild(li);
   });
 
+  if (upcoming.length === 0) {
+    document.getElementById("holidayEmpty").style.display = "block";
+  }
+
   // ---- Weather via Open-Meteo (no key needed, CORS-friendly) ----
   const wxRow = document.getElementById("wxRow");
-  const weekdayShort = ["日","一","二","三","四","五","六"];
 
   function wxIcon(code){
     if (code === 0) return "☀️";
